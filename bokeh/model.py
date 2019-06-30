@@ -40,6 +40,7 @@ from .themes import default as default_theme
 from .util.callback_manager import PropertyCallbackManager, EventCallbackManager
 from .util.future import with_metaclass
 from .util.serialization import make_id
+from .util.string import snakify
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -238,7 +239,28 @@ class MetaModel(MetaHasProps):
 
         # use an explicitly provided view model name if there is one
         if "__view_model__" not in class_dict:
-            class_dict["__view_model__"] = class_name
+            class_dict["__view_model__"] = view_model = class_name
+        else:
+            view_model = class_dict["__view_model__"]
+
+        if "__view_module__" not in class_dict:
+            module_name = class_dict["__module__"]
+            if module_name.startswith("bokeh."):
+                module_name = module_name[len("bokeh."):]
+            class_dict["__view_module__"] = module_name + "." + snakify(view_model)
+            #                               ^^^^^  base!!!
+        else:
+            #import ipdb; ipdb.set_trace()
+            view_module = class_dict["__view_module__"]
+            if view_module.startswith("."):
+                for base in bases:
+                    if issubclass(base, Model):
+                        base_view_module = ".".join(base.__view_module__.split(".")[:-1])
+                        class_dict["__view_module__"] = view_module = base_view_module + view_module
+                        break
+            if view_module.endswith("."):
+                class_dict["__view_module__"] = view_module = view_module + snakify(view_model)
+
 
         # call the parent metaclass to create the new model type
         newcls = super(MetaModel, meta_cls).__new__(meta_cls, class_name, bases, class_dict)

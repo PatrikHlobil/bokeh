@@ -47,6 +47,9 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
+def optimized_bundle(objs):
+    _all_objs(objs)
+
 def bundle_for_objs_and_resources(objs, resources):
     ''' Generate rendered CSS and JS resources suitable for the given
     collection of Bokeh objects
@@ -58,10 +61,8 @@ def bundle_for_objs_and_resources(objs, resources):
 
     Returns:
         tuple
-
     '''
-    if isinstance(resources, BaseResources):
-        js_resources = css_resources = resources
+    if isinstance(resources, BaseResources): js_resources = css_resources = resources
     elif isinstance(resources, tuple) and len(resources) == 2 and all(r is None or isinstance(r, BaseResources) for r in resources):
         js_resources, css_resources = resources
 
@@ -74,6 +75,8 @@ def bundle_for_objs_and_resources(objs, resources):
         raise ValueError("expected Resources or a pair of optional Resources, got %r" % resources)
 
     from copy import deepcopy
+
+    print(set([ obj.__view_module__ for obj in _all_objs(objs) ]))
 
     # XXX: force all components on server and in notebook, because we don't know in advance what will be used
     use_widgets = _use_widgets(objs) if objs else True

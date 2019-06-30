@@ -123,20 +123,21 @@ class Tool(Model):
     ''' A base class for all interactive tool types.
 
     '''
+    pass
 
 @abstract
 class Action(Tool):
     ''' A base class for tools that are buttons in the toolbar.
 
     '''
-    pass
+    __view_module__ = ".actions."
 
 @abstract
 class Gesture(Tool):
     ''' A base class for tools that respond to drag events.
 
     '''
-    pass
+    __view_module__ = ".gestures."
 
 @abstract
 class Drag(Gesture):
@@ -164,6 +165,8 @@ class Inspection(Gesture):
     ''' A base class for tools that perform "inspections", e.g. ``HoverTool``.
 
     '''
+    __view_module__ = ".inspectors."
+
     toggleable = Bool(True, help="""
     Whether an on/off toggle button should appear in the toolbar for this
     inspection tool. If ``False``, the viewers of a plot will not be able to
@@ -1263,6 +1266,8 @@ class EditTool(Gesture):
     ''' A base class for all interactive draw tool types.
 
     '''
+
+    __view_module__ = ".edit."
 
     custom_tooltip = String(None, help="""
     A custom tooltip label to override the default name.
